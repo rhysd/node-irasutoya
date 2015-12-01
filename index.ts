@@ -53,8 +53,7 @@ export function fetchIrasutoOf(category: Category) {
 
     return fetchURL(category.url).then((html: string) => {
         const dom = cheerio.load(html);
-        return new Promise(resolve => setTimeout(() => resolve(
-            dom('.widget.Blog .post-outer .box .boxim a')
+        return dom('.widget.Blog .post-outer .box .boxim a')
                 .toArray()
                 .map(a => {
                     const detail_url = (a.attribs as {[k: string]: string})['href'];
@@ -66,18 +65,14 @@ export function fetchIrasutoOf(category: Category) {
                     const image_url = match[1];
                     const name = match[2];
 
-                    console.error(name);
-
                     return {
                         name,
                         category,
                         image_url,
                         detail_url,
                     };
-                })
-            ), 1000)
-        );
-    });
+                });
+    }).delay(500);
 }
 
 // Access to each category of irasutoya *sequentially* not to be *evil*.
