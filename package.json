@@ -1,6 +1,6 @@
 {
   "name": "node-irasutoya",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Irasutoya scraping library for node",
   "main": "index.js",
   "scripts": {
@@ -14,10 +14,10 @@
   "author": "rhysd <lin90162@yahoo.co.jp>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rhysd/node-github-trend.git"
+    "url": "https://github.com/rhysd/node-irasutoya.git"
   },
   "bugs": {
-    "url": "https://github.com/rhysd/node-github-trend/issues"
+    "url": "https://github.com/rhysd/node-irasutoya/issues"
   },
   "license": "MIT",
   "dependencies": {
