@@ -19,6 +19,9 @@
     },
     "bluebird/bluebird.d.ts": {
       "commit": "35568d8cf9b3157cbaee2354c4d8f4026ff2919f"
+    },
+    "es6-collections/es6-collections.d.ts": {
+      "commit": "7a3d6944036902996b87981e6150900952b35628"
     }
   }
 }

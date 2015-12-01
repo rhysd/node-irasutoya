@@ -2,17 +2,20 @@ import request = require('request');
 import cheerio = require('cheerio');
 import Promise = require('bluebird');
 
+export type CategoryName = string;
+
 export interface Category {
-    title: string;
+    title: CategoryName;
     url: string;
 }
 
 export interface Irasuto {
     name: string;
-    category: string;
     image_url: string;
     detail_url: string;
 }
+
+export type Irasutoya = Map<CategoryName, Irasuto[]>;
 
 function fetchURL(url: string) { 'use strict';
     return new Promise((resolve, reject) => {
@@ -30,7 +33,7 @@ function fetchURL(url: string) { 'use strict';
     });
 }
 
-export function fetchCategories() { 'use strict';
+export function fetchCategories(): Promise<Category[]> { 'use strict';
     return fetchURL('http://www.irasutoya.com/').then((html: string) => {
         const dom = cheerio.load(html);
         return dom('div#sidebar-wrapper div.widget.Label div.widget-content ul li a')
@@ -44,7 +47,7 @@ export function fetchCategories() { 'use strict';
 
 const ScriptScrapingRegex = /"(http:\/\/.+\.(?:png|jpg))","(.+)"/;
 
-export function fetchIrasutoOf(category: Category) { 'use strict';
+export function fetchIrasutoOf(category: Category): Promise<Irasuto[]> { 'use strict';
     return fetchURL(category.url).then((html: string) => {
         const dom = cheerio.load(html);
         return dom('.widget.Blog .post-outer .box .boxim a')
@@ -61,15 +64,17 @@ export function fetchIrasutoOf(category: Category) { 'use strict';
 
                     return {
                         name,
-                        category,
                         image_url,
                         detail_url,
                     };
                 });
-    }).delay(500);
+    }).delay(1000);
 }
 
 // Access to each category of irasutoya *sequentially* not to be *evil*.
-export function fetchAllIrasuto() { 'use strict';
-    return fetchCategories().mapSeries(fetchIrasutoOf);
+export function fetchAllIrasuto(): Promise<Irasutoya> { 'use strict';
+    return fetchCategories().reduce(
+        (acc: Irasutoya, c: Category) => fetchIrasutoOf(c).then((i: Irasuto[]) => acc.set(c.title, i)),
+        new Map<CategoryName, Irasuto[]>()
+    );
 }
