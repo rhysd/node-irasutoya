@@ -11,14 +11,14 @@
     "request/request.d.ts": {
       "commit": "e850b6ac0d59fee86dd7cb6a1be2caf6400bde14"
     },
-    "es6-promise/es6-promise.d.ts": {
-      "commit": "e850b6ac0d59fee86dd7cb6a1be2caf6400bde14"
-    },
     "cheerio/cheerio.d.ts": {
       "commit": "e850b6ac0d59fee86dd7cb6a1be2caf6400bde14"
     },
     "form-data/form-data.d.ts": {
       "commit": "e850b6ac0d59fee86dd7cb6a1be2caf6400bde14"
+    },
+    "bluebird/bluebird.d.ts": {
+      "commit": "35568d8cf9b3157cbaee2354c4d8f4026ff2919f"
     }
   }
 }

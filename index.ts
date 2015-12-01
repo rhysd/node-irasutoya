@@ -1,5 +1,6 @@
 import request = require('request');
 import cheerio = require('cheerio');
+import Promise = require('bluebird');
 
 export interface Category {
     title: string;
@@ -45,32 +46,37 @@ export function fetchCategories() {
     });
 }
 
-const ScriptScrapingRegex = /"(http:\/\/.+\.(:?png|jpg))","(.+)"/;
+const ScriptScrapingRegex = /"(http:\/\/.+\.(?:png|jpg))","(.+)"/;
 
 export function fetchIrasutoOf(category: Category) {
     'use strict';
 
     return fetchURL(category.url).then((html: string) => {
         const dom = cheerio.load(html);
-        return dom('.widget.Blog .post-outer .box .boxim a')
-            .toArray()
-            .map(a => {
-                const detail_url = (a.attribs as {[k: string]: string})['href'];
-                const src: string = (cheerio(a).children('script')[0].children[0] as any).data;
-                const match = src.match(ScriptScrapingRegex);
-                if (match === null) {
-                    throw new Error('Scraping script of irasuto failed: ' + src);
-                }
-                const image_url = match[1];
-                const name = match[2];
+        return new Promise(resolve => setTimeout(() => resolve(
+            dom('.widget.Blog .post-outer .box .boxim a')
+                .toArray()
+                .map(a => {
+                    const detail_url = (a.attribs as {[k: string]: string})['href'];
+                    const src: string = (cheerio(a).children('script')[0].children[0] as any).data;
+                    const match = src.match(ScriptScrapingRegex);
+                    if (match === null) {
+                        throw new Error('Scraping script of irasuto failed: ' + src);
+                    }
+                    const image_url = match[1];
+                    const name = match[2];
 
-                return {
-                    name,
-                    category,
-                    image_url,
-                    detail_url,
-                };
-            });
+                    console.error(name);
+
+                    return {
+                        name,
+                        category,
+                        image_url,
+                        detail_url,
+                    };
+                })
+            ), 1000)
+        );
     });
 }
 
@@ -78,18 +84,5 @@ export function fetchIrasutoOf(category: Category) {
 export function fetchAllIrasuto() {
     'use strict';
 
-    // FIXME: Use reduce()
-    return fetchCategories()
-        .then(categories => {
-            let result = [] as Irasuto[];
-            let p = Promise.resolve() as Promise<Irasuto[]>;
-            for (const c of categories) {
-                p = p.then(fetchIrasutoOf(c)).then((i: Irasuto) => {
-                    result.push(i);
-                    console.log(i);
-                    return result;
-                });
-            }
-            return p;
-        });
+    return fetchCategories().mapSeries(fetchIrasutoOf);
 }
