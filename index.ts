@@ -14,9 +14,7 @@ export interface Irasuto {
     detail_url: string;
 }
 
-function fetchURL(url: string) {
-    'use strict';
-
+function fetchURL(url: string) { 'use strict';
     return new Promise((resolve, reject) => {
         request(url, (err, res, body) => {
             if (err) {
@@ -32,9 +30,7 @@ function fetchURL(url: string) {
     });
 }
 
-export function fetchCategories() {
-    'use strict';
-
+export function fetchCategories() { 'use strict';
     return fetchURL('http://www.irasutoya.com/').then((html: string) => {
         const dom = cheerio.load(html);
         return dom('div#sidebar-wrapper div.widget.Label div.widget-content ul li a')
@@ -48,9 +44,7 @@ export function fetchCategories() {
 
 const ScriptScrapingRegex = /"(http:\/\/.+\.(?:png|jpg))","(.+)"/;
 
-export function fetchIrasutoOf(category: Category) {
-    'use strict';
-
+export function fetchIrasutoOf(category: Category) { 'use strict';
     return fetchURL(category.url).then((html: string) => {
         const dom = cheerio.load(html);
         return dom('.widget.Blog .post-outer .box .boxim a')
@@ -76,8 +70,6 @@ export function fetchIrasutoOf(category: Category) {
 }
 
 // Access to each category of irasutoya *sequentially* not to be *evil*.
-export function fetchAllIrasuto() {
-    'use strict';
-
+export function fetchAllIrasuto() { 'use strict';
     return fetchCategories().mapSeries(fetchIrasutoOf);
 }
