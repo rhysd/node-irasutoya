@@ -11,6 +11,7 @@ export interface Category {
 
 export interface Irasuto {
     name: string;
+    category: Category;
     image_url: string;
     detail_url: string;
 }
@@ -64,11 +65,12 @@ export function fetchIrasutoOf(category: Category): Promise<Irasuto[]> { 'use st
 
                     return {
                         name,
+                        category,
                         image_url,
                         detail_url,
                     };
                 });
-    }).delay(1000);
+    }).delay(5000);
 }
 
 // Access to each category of irasutoya *sequentially* not to be *evil*.

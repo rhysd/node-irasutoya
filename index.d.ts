@@ -6,6 +6,7 @@ export interface Category {
 }
 export interface Irasuto {
     name: string;
+    category: Category;
     image_url: string;
     detail_url: string;
 }
