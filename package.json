@@ -1,11 +1,11 @@
 {
   "name": "node-irasutoya",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "Irasutoya scraping library for node",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/.bin/tsc -p ."
+    "build": "./node_modules/.bin/tsc -p ./src"
   },
   "keywords": [
     "irasutoya",
