@@ -1,6 +1,6 @@
 {
   "name": "node-irasutoya",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Irasutoya scraping library for node",
   "main": "index.js",
   "scripts": {

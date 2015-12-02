@@ -70,7 +70,7 @@ export function fetchIrasutoOf(category: Category): Promise<Irasuto[]> { 'use st
                         detail_url,
                     };
                 });
-    }).delay(5000);
+    }).delay(1000);
 }
 
 // Access to each category of irasutoya *sequentially* not to be *evil*.
