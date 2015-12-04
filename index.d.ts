@@ -20,6 +20,7 @@ export interface Irasuto {
     name: string;
     detail_url: string;
     image_url: string;
+    mini_image_url: string;
     categories: string[];
     description: string;
 }

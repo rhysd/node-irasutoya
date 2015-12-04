@@ -69,6 +69,7 @@ export interface Irasuto {
     name: string;
     detail_url: string;
     image_url: string;
+    mini_image_url: string;
     categories: string[];
     description: string;
 }
@@ -183,6 +184,7 @@ export function scrapeDetailPage(url: string, {retry = 0} = {}): Promise<Irasuto
             name,
             detail_url: url,
             image_url,
+            mini_image_url: image_url.replace('/s800/', '/s72-c/'),
             description,
             categories,
         };
