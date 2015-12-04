@@ -11,15 +11,15 @@ export interface Category {
 
 export interface Irasuto {
     name: string;
-    category: Category;
+    category?: Category;
     image_url: string;
     detail_url: string;
 }
 
 export type Irasutoya = Map<CategoryName, Irasuto[]>;
 
-function fetchURL(url: string) { 'use strict';
-    return new Promise((resolve, reject) => {
+function requestURL(url: string): Promise<string> { 'use strict';
+    return new Promise((resolve: (b: string) => void, reject: (e: Error) => void) => {
         request(url, (err, res, body) => {
             if (err) {
                 return reject(err);
@@ -34,8 +34,19 @@ function fetchURL(url: string) { 'use strict';
     });
 }
 
-export function fetchCategories(): Promise<Category[]> { 'use strict';
-    return fetchURL('http://www.irasutoya.com/').then((html: string) => {
+function fetchURL(url: string, {retry = 0} = {}): Promise<string> { 'use strict';
+    return requestURL(url)
+        .catch((e: Error) => {
+            if ((retry || 0) > 0) {
+                return fetchURL(url, retry - 1);
+            } else {
+                return Promise.reject(e);
+            }
+        });
+}
+
+export function fetchCategories({retry = 0} = {}): Promise<Category[]> { 'use strict';
+    return fetchURL('http://www.irasutoya.com/', retry).then(html => {
         const dom = cheerio.load(html);
         return dom('div#sidebar-wrapper div.widget.Label div.widget-content ul li a')
             .toArray()
@@ -48,8 +59,8 @@ export function fetchCategories(): Promise<Category[]> { 'use strict';
 
 const ScriptScrapingRegex = /"(http:\/\/.+\.(?:png|jpg))","(.+)"/;
 
-export function fetchIrasutoOf(category: Category): Promise<Irasuto[]> { 'use strict';
-    return fetchURL(category.url).then((html: string) => {
+export function fetchIrasutoOf(category: Category, {retry = 0} = {}): Promise<Irasuto[]> { 'use strict';
+    return fetchURL(category.url, retry).then((html: string) => {
         const dom = cheerio.load(html);
         return dom('.widget.Blog .post-outer .box .boxim a')
                 .toArray()
@@ -74,9 +85,10 @@ export function fetchIrasutoOf(category: Category): Promise<Irasuto[]> { 'use st
 }
 
 // Access to each category of irasutoya *sequentially* not to be *evil*.
-export function fetchAllIrasuto(): Promise<Irasutoya> { 'use strict';
-    return fetchCategories().reduce(
+export function fetchAllIrasuto({retry = 0} = {}): Promise<Irasutoya> { 'use strict';
+    return fetchCategories(retry).reduce(
         (acc: Irasutoya, c: Category) => fetchIrasutoOf(c).then((i: Irasuto[]) => acc.set(c.title, i)),
         new Map<CategoryName, Irasuto[]>()
     );
 }
+
