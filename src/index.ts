@@ -23,10 +23,13 @@ function requestURL(url: string): Promise<string> { 'use strict';
     });
 }
 
-function fetchURL(url: string, retry: number): Promise<string> { 'use strict';
+function fetchURL(url: string, retry: number, verbose: boolean = false): Promise<string> { 'use strict';
     return requestURL(url)
         .catch((e: Error) => {
             if ((retry || 0) > 0) {
+                if (verbose) {
+                    console.error(`Fetching ${url} failed. Retry.`);
+                }
                 return fetchURL(url, retry - 1);
             } else {
                 return Promise.reject(e);
@@ -93,7 +96,7 @@ function scrapePage(url: string, retry: number, next_url_selector: string): Prom
             }
             const image_url = match[1]; // Should replace 's72-c' to 's800'?
             const name = match[2];
-            console.error(name);
+            console.error('scrapePage(): ' + name);
             contents.push({
                 detail_url,
                 image_url,
@@ -139,18 +142,18 @@ export function scrapeAllPages({retry = 0, depth = Infinity, delay_ms = 1000} = 
         });
 }
 
-export function scrapeAllIrasuto({retry = 0, depth = Infinity, delay_ms = 1000} = {}): Promise<IrasutoLink[]> { 'use strict';
+export function scrapeAllIrasutoLinks({retry = 0, depth = Infinity, delay_ms = 1000} = {}): Promise<IrasutoLink[]> { 'use strict';
     return scrapeAllPages({retry, depth, delay_ms}).reduce(
             (acc: IrasutoLink[], page: Page) => push(acc, ...page.contents), []
         );
 }
 
-export function scrapeDetailPage(url: string, {retry = 0} = {}): Promise<Irasuto> { 'use strict';
-    return fetchURL(url, retry).then(html => {
+export function scrapeDetailPage(url: string, {retry = 0, verbose = false} = {}): Promise<Irasuto> { 'use strict';
+    return fetchURL(url, retry, verbose).then(html => {
         const dom = cheerio.load(html);
 
         const name_nodes = dom('div#post div.title h2');
-        if (name_nodes.length === 0) {
+        if (name_nodes.length === 0 || name_nodes[0].children.length === 0) {
             console.error('Title is not found for detail page ' + url);
             return null;
         }
@@ -163,12 +166,22 @@ export function scrapeDetailPage(url: string, {retry = 0} = {}): Promise<Irasuto
         }
         const image_url = (image_nodes[0].attribs as {href: string}).href;
 
+        let description: string = null;
         const desc_nodes = dom('div#post div.entry div.separator');
-        if (desc_nodes.length < 2) {
+        if (desc_nodes.length > 1 && desc_nodes[1].children && desc_nodes[1].children.length > 0) {
+            description = desc_nodes[1].children[0].data;
+        } else {
+            const desc_nodes = dom('div#post div.entry div.separator');
+            if (desc_nodes.length > 0 && desc_nodes[0].next && desc_nodes[0].next.data) {
+                description = desc_nodes[0].next.data;
+            }
+        }
+        if (description === null) {
             console.error('Description is not found for detail page ' + url);
             return null;
         }
-        const description = (desc_nodes[1].children[0] as any).data as string;
+
+
 
         const category_nodes = dom('span.category a');
         if (category_nodes.length === 0) {
@@ -177,7 +190,13 @@ export function scrapeDetailPage(url: string, {retry = 0} = {}): Promise<Irasuto
         }
         const categories = [] as string[];
         for (let i = 0; i < category_nodes.length; ++i) {
-            categories.push((category_nodes[i].children[0] as any).data);
+            if (category_nodes[i].children.length > 0) {
+                categories.push((category_nodes[i].children[0] as any).data);
+            }
+        }
+
+        if (verbose) {
+            console.error('Scraping detail of ' + name);
         }
 
         return {
@@ -190,3 +209,10 @@ export function scrapeDetailPage(url: string, {retry = 0} = {}): Promise<Irasuto
         };
     });
 }
+
+export function scrapeAllIrasuto({retry = 0, depth = Infinity, delay_ms = 500, concurrency = 4} = {}): Promise<Irasuto[]> { 'use strict';
+    return scrapeAllIrasutoLinks({retry, depth, delay_ms})
+        .map((i: IrasutoLink) => scrapeDetailPage(i.detail_url, {retry}).delay(delay_ms), {concurrency})
+        .filter((i: Irasuto) => i !== null);
+}
+
