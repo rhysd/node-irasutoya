@@ -34,7 +34,7 @@ function requestURL(url: string): Promise<string> { 'use strict';
     });
 }
 
-function fetchURL(url: string, {retry = 0} = {}): Promise<string> { 'use strict';
+function fetchURL(url: string, retry: number): Promise<string> { 'use strict';
     return requestURL(url)
         .catch((e: Error) => {
             if ((retry || 0) > 0) {
@@ -86,8 +86,8 @@ export function fetchIrasutoOf(category: Category, {retry = 0} = {}): Promise<Ir
 
 // Access to each category of irasutoya *sequentially* not to be *evil*.
 export function fetchAllIrasuto({retry = 0} = {}): Promise<Irasutoya> { 'use strict';
-    return fetchCategories(retry).reduce(
-        (acc: Irasutoya, c: Category) => fetchIrasutoOf(c).then((i: Irasuto[]) => acc.set(c.title, i)),
+    return fetchCategories({retry}).reduce(
+        (acc: Irasutoya, c: Category) => fetchIrasutoOf(c, {retry}).then((i: Irasuto[]) => acc.set(c.title, i)),
         new Map<CategoryName, Irasuto[]>()
     );
 }
