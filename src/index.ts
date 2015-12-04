@@ -34,6 +34,23 @@ function fetchURL(url: string, retry: number): Promise<string> { 'use strict';
         });
 }
 
+export interface Category {
+    title: string;
+    url: string;
+}
+
+export function scrapeCategories({retry = 0} = {}): Promise<Category[]> { 'use strict';
+    return fetchURL('http://www.irasutoya.com/', retry).then(html => {
+        const dom = cheerio.load(html);
+        return dom('div#sidebar-wrapper div.widget.Label div.widget-content ul li a')
+            .toArray()
+            .map(a => ({
+                title: (a.children[0] as any).data as string,
+                url: cheerio(a).attr('href'),
+            }));
+    });
+}
+
 const ScriptScrapingRegex = /"(http:\/\/.+\.(?:png|jpg))","(.+)"/;
 
 export interface IrasutoLink {

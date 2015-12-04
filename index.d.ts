@@ -1,4 +1,11 @@
 import Promise = require('bluebird');
+export interface Category {
+    title: string;
+    url: string;
+}
+export declare function scrapeCategories({retry}?: {
+    retry?: number;
+}): Promise<Category[]>;
 export interface IrasutoLink {
     name: string;
     image_url: string;
