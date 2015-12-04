@@ -1,22 +1,34 @@
 import Promise = require('bluebird');
-export declare type CategoryName = string;
-export interface Category {
-    title: CategoryName;
-    url: string;
-}
-export interface Irasuto {
+export interface IrasutoLink {
     name: string;
-    category?: Category;
     image_url: string;
     detail_url: string;
 }
-export declare type Irasutoya = Map<CategoryName, Irasuto[]>;
-export declare function fetchCategories({retry}?: {
+export interface Page {
+    url: string;
+    next_url: string;
+    contents: IrasutoLink[];
+}
+export interface Irasuto {
+    name: string;
+    detail_url: string;
+    image_url: string;
+    categories: string[];
+    description: string;
+}
+export declare function scrapeFirstPage({retry}?: {
     retry?: number;
-}): Promise<Category[]>;
-export declare function fetchIrasutoOf(category: Category, {retry}?: {
+}): Promise<Page>;
+export declare function scrapeAllPages({retry, depth, delay_ms}?: {
     retry?: number;
-}): Promise<Irasuto[]>;
-export declare function fetchAllIrasuto({retry}?: {
+    depth?: number;
+    delay_ms?: number;
+}): Promise<Page[]>;
+export declare function scrapeAllIrasuto({retry, depth, delay_ms}?: {
     retry?: number;
-}): Promise<Irasutoya>;
+    depth?: number;
+    delay_ms?: number;
+}): Promise<IrasutoLink[]>;
+export declare function scrapeDetailPage(url: string, {retry}?: {
+    retry?: number;
+}): Promise<Irasuto>;
