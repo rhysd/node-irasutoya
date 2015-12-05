@@ -32,11 +32,18 @@ export declare function scrapeAllPages({retry, depth, delay_ms}?: {
     depth?: number;
     delay_ms?: number;
 }): Promise<Page[]>;
-export declare function scrapeAllIrasuto({retry, depth, delay_ms}?: {
+export declare function scrapeAllIrasutoLinks({retry, depth, delay_ms}?: {
     retry?: number;
     depth?: number;
     delay_ms?: number;
 }): Promise<IrasutoLink[]>;
-export declare function scrapeDetailPage(url: string, {retry}?: {
+export declare function scrapeDetailPage(url: string, {retry, verbose}?: {
     retry?: number;
+    verbose?: boolean;
 }): Promise<Irasuto>;
+export declare function scrapeAllIrasuto({retry, depth, delay_ms, concurrency}?: {
+    retry?: number;
+    depth?: number;
+    delay_ms?: number;
+    concurrency?: number;
+}): Promise<Irasuto[]>;
