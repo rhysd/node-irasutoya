@@ -41,9 +41,10 @@ export declare function scrapeDetailPage(url: string, {retry, verbose}?: {
     retry?: number;
     verbose?: boolean;
 }): Promise<Irasuto>;
-export declare function scrapeAllIrasuto({retry, depth, delay_ms, concurrency}?: {
+export declare function scrapeAllIrasuto({retry, depth, delay_ms, concurrency, verbose}?: {
     retry?: number;
     depth?: number;
     delay_ms?: number;
     concurrency?: number;
+    verbose?: boolean;
 }): Promise<Irasuto[]>;

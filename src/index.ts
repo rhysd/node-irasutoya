@@ -210,9 +210,9 @@ export function scrapeDetailPage(url: string, {retry = 0, verbose = false} = {})
     });
 }
 
-export function scrapeAllIrasuto({retry = 0, depth = Infinity, delay_ms = 500, concurrency = 4} = {}): Promise<Irasuto[]> { 'use strict';
+export function scrapeAllIrasuto({retry = 0, depth = Infinity, delay_ms = 500, concurrency = 4, verbose = false} = {}): Promise<Irasuto[]> { 'use strict';
     return scrapeAllIrasutoLinks({retry, depth, delay_ms})
-        .map((i: IrasutoLink) => scrapeDetailPage(i.detail_url, {retry}).delay(delay_ms), {concurrency})
+        .map((i: IrasutoLink) => scrapeDetailPage(i.detail_url, {retry, verbose}).delay(delay_ms), {concurrency})
         .filter((i: Irasuto) => i !== null);
 }
 
